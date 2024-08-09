@@ -1,0 +1,22 @@
+{
+  "name": "runtime-upgrades-checker",
+  "version": "1.0.0",
+  "description": "On-Going Referenda & Runtime Upgrade Checker",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Dominique S",
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Imod7/runtime-upgrades-checker.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Imod7/runtime-upgrades-checker/issues"
+  },
+  "homepage": "https://github.com/Imod7/runtime-upgrades-checker#readme",
+  "dependencies": {
+    "axios": "^1.7.3"
+  }
+}
