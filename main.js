@@ -13,30 +13,42 @@ const colours = {
 };
 
 async function getRuntime(args) {
-    let counter = 0;
+    let countUpgrades = 0;
+    let countTotal = 0;
     args = args != null ? '?at=' + args : '';
     const endpoint = `${BASE_URL}` + '/pallets/on-going-referenda' + args;
     const spec = await axios.get(`${BASE_URL}` + '/runtime/spec');
     const specName = spec.data.specName;
-    const onGoingRef = await axios.get(endpoint);
+    let onGoingRef = null;
+    try {
+        onGoingRef = await axios.get(endpoint);
 
-    if (onGoingRef.data != undefined && onGoingRef.data.referendas?.length != 0) {
-        for (const referenda of onGoingRef.data.referendas) {
-            const refId = referenda.id.replace(/[,]+/g, '').trim();
-            const title = await getTitle(refId, specName);
-            const regex = /\bupgrade\b/i;
-            const upgradeWordFound = regex.test(title);
-            console.log(`${colours.fg.yellow}Ref Title:${colours.reset} ${title}`);
-            console.log(`${colours.fg.yellow}Ref Details:${colours.reset}`, referenda);
-            if (upgradeWordFound) {
-                console.log(`⚠️ ${colours.fg.red} ATTENTION : Title shows it is an upgrade - Check if it is a relevant one for your case ${colours.reset}⚠️`);
-                counter++;
+        if (onGoingRef.data != undefined && onGoingRef.data.referenda?.length != 0) {
+            for (const referenda of onGoingRef.data.referenda) {
+                countTotal++;
+                const refId = referenda.id.replace(/[,]+/g, '').trim();
+                const title = await getTitle(refId, specName);
+                const regex = /\bupgrade\b/i;
+                const upgradeWordFound = regex.test(title);
+                console.log(`\n${colours.fg.yellow}${countTotal}. Ref Title:${colours.reset} ${title}`);
+                console.log(`Ref Details:`, referenda);
+                if (upgradeWordFound) {
+                    console.log(`⚠️ ${colours.fg.red} ATTENTION : Title shows it is an upgrade - Check if it is a relevant one for your case ${colours.reset}⚠️`);
+                    countUpgrades++;
+                }
             }
+        } else {
+            console.log("✅ No On Going Referendas!!!")
         }
-    } else {
-        console.log("✅ No On Going Referendas!!!")
+    } catch (error) {
+        if (error.response) {
+            console.error(`${colours.fg.red}Error${colours.reset}: ${error.response.data.message}`);
+        } else {
+            console.error(`${colours.fg.red}Error${colours.reset}: ${error}`);
+        }
     }
-    return counter;
+
+    return [countUpgrades, countTotal];
 }
 
 async function getTitle(id, specName) {
@@ -56,9 +68,9 @@ async function getTitle(id, specName) {
 
 const main = async () => {
     var arguments = process.argv;
-    const counter = await getRuntime(arguments[2]);
-    if (counter > 0) {
-        console.log(`\n‼️ ${colours.fg.red} ATTENTION : at least ${counter} referendas should be checked ${colours.reset}‼️`);
+    const [countUpgrades, countTotal] = await getRuntime(arguments[2]);
+    if (countUpgrades > 0) {
+        console.log(`\n‼️ ${colours.fg.red} ATTENTION : At least ${countUpgrades} out of ${countTotal} referendas should be checked ${colours.reset}‼️`);
     }
 };
 
